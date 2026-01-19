@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Arise - Level Up Your Life</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #1e1b4b, #581c87, #0f172a);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        .container { padding: 1.5rem; padding-bottom: 5rem; }
+        .header {
+            background: linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent);
+            padding: 1.5rem;
+            padding-bottom: 2rem;
+        }
+        .rank-badge {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .rank-circle {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            border: 4px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+            position: relative;
+        }
+        .level-badge {
+            position: absolute;
+            bottom: -0.25rem;
+            right: -0.25rem;
+            background: #4f46e5;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            border: 2px solid rgba(168, 85, 247, 0.5);
+        }
+        .rank-info h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, white, #e9d5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .rank-info p { color: #c4b5fd; font-size: 0.875rem; }
+        .streak {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(to right, rgba(249, 115, 22, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .xp-bar-container {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .xp-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .xp-bar {
+            height: 1rem;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 9999px;
+            overflow: hidden;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(to right, #a855f7, #ec4899, #a855f7);
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quest-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .quest-card:active { transform: scale(0.95); }
+        .quest-card.completed {
+            opacity: 0.6;
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        .quest-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .quest-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.5);
+            flex-shrink: 0;
+        }
+        .quest-icon.completed { background: linear-gradient(135deg, #22c55e, #10b981); }
+        .quest-info { flex: 1; }
+        .quest-title {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+        .quest-title.completed { text-decoration: line-through; color: #94a3b8; }
+        .quest-subtitle { font-size: 0.75rem; color: #c4b5fd; font-weight: 500; }
+        .quest-xp {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            background: linear-gradient(to right, rgba(234, 179, 8, 0.2), rgba(245, 158, 11, 0.2));
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            color: #fde047;
+            flex-shrink: 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.3), rgba(194, 65, 12, 0.3));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .stat-card.mental {
+            background: linear-gradient(135deg, rgba(8, 47, 73, 0.3), rgba(7, 89, 133, 0.3));
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+        .stat-label { font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #fca5a5, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-value.mental {
+            background: linear-gradient(to right, #67e8f9, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(to bottom, #0f172a, #020617);
+            border-radius: 1.5rem;
+            max-width: 28rem;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 20px 50px rgba(168, 85, 247, 0.2);
+        }
+        .modal-header {
+            background: linear-gradient(to right, rgba(139, 92, 246, 0.9), rgba(79, 70, 229, 0.9));
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 1.5rem 1.5rem 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .modal-title { font-size: 1.25rem; font-weight: bold; color: #e9d5ff; }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #c4b5fd;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-body { padding: 1rem; }
+        .exercise-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            margin-bottom: 0.75rem;
+        }
+        .exercise-header { margin-bottom: 0.75rem; }
+        .exercise-name { font-weight: 600; color: #e9d5ff; margin-bottom: 0.25rem; }
+        .exercise-meta {
+            font-size: 0.75rem;
+            color: #c4b5fd;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .input-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+        .input-group { display: flex; flex-direction: column; }
+        .input-label {
+            font-size: 0.75rem;
+            color: #c4b5fd;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .input-field {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            color: #e9d5ff;
+            font-size: 0.875rem;
+            width: 100%;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+        .result-text {
+            font-size: 0.75rem;
+            color: #c4b5fd;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        .complete-btn {
+            width: 100%;
+            background: linear-gradient(to right, #9333ea, #4f46e5);
+            color: white;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.5);
+            transition: all 0.3s;
+            margin-top: 0.75rem;
+        }
+        .complete-btn:active { transform: scale(0.95); }
+        .info-banner {
+            background: linear-gradient(to right, rgba(139, 92, 246, 0.4), rgba(79, 70, 229, 0.4));
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: #c4b5fd;
+        }
+        .levelup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .levelup-modal.active { display: flex; animation: fadeIn 0.3s; }
+        .levelup-content {
+            text-align: center;
+            animation: bounce 1s infinite;
+        }
+        .levelup-text {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #a855f7, #ec4899, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        .levelup-level {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #c4b5fd;
+        }
+        .levelup-rank {
+            font-size: 1.5rem;
+            color: #a855f7;
+            margin-top: 0.5rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="levelup-modal" id="levelupModal">
+        <div class="levelup-content">
+            <div class="levelup-text">LEVEL UP!</div>
+            <div class="levelup-level" id="levelupLevel">Lv. 1</div>
+            <div class="levelup-rank" id="levelupRank">Rank E</div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="rank-badge">
+            <div>
+                <div class="rank-circle">
+                    <span id="rankDisplay">E</span>
+                    <div class="level-badge">Lv.<span id="levelDisplay">1</span></div>
+                </div>
+            </div>
+            <div class="rank-info">
+                <p style="font-size: 0.875rem; color: #c4b5fd;">Current Rank</p>
+                <h2><span id="rankTitle">E</span>-Rank Hunter</h2>
+                <p>Level <span id="levelText">1</span></p>
+            </div>
+        </div>
+        <div style="text-align: right; margin-bottom: 1.5rem;">
+            <span class="streak">
+                🔥 <span id="streakDisplay">0</span> Day Streak
+            </span>
+        </div>
+        <div class="xp-bar-container">
+            <div class="xp-label">
+                <span style="color: #c4b5fd; font-weight: 500;">Experience</span>
+                <span style="color: #c4b5fd; font-weight: bold;"><span id="currentXP">0</span> / <span id="maxXP">100</span> XP</span>
+            </div>
+            <div class="xp-bar">
+                <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">🏆 Daily Quests</h2>
+        
+        <div class="quest-card" onclick="openDailyQuest()" id="questDaily">
+            <div class="quest-content">
+                <div class="quest-icon" id="iconDaily">🎯</div>
+                <div class="quest-info">
+                    <div class="quest-title" id="titleDaily">Daily Quest</div>
+                    <div class="quest-subtitle">5 core exercises - do daily</div>
+                </div>
+                <div class="quest-xp">⚡ 80</div>
+            </div>
+        </div>
+
+        <div class="quest-card" onclick="openDailyWorkout()" id="questWorkout">
+            <div class="quest-content">
+                <div class="quest-icon" id="iconWorkout">🎯</div>
+                <div class="quest-info">
+                    <div class="quest-title" id="titleWorkout">Daily Workout</div>
+                    <div class="quest-subtitle" id="workoutFocus">Focus: chest - Rotates daily</div>
+                </div>
+                <div class="quest-xp">⚡ 100</div>
+            </div>
+        </div>
+
+        <div class="quest-card" onclick="completeQuest('reading')" id="questReading">
+            <div class="quest-content">
+                <div class="quest-icon" id="iconReading">🎯</div>
+                <div class="quest-info">
+                    <div class="quest-title" id="titleReading">Read 20 pages</div>
+                    <div class="quest-subtitle" id="readingSub">Page 0 → 20</div>
+                </div>
+                <div class="quest-xp">⚡ 40</div>
+            </div>
+        </div>
+
+        <div class="quest-card" onclick="completeQuest('stretch')" id="questStretch">
+            <div class="quest-content">
+                <div class="quest-icon" id="iconStretch">🎯</div>
+                <div class="quest-info">
+                    <div class="quest-title" id="titleStretch">Full Body Stretch - 10min</div>
+                    <div class="quest-subtitle">Flexibility & Recovery</div>
+                </div>
+                <div class="quest-xp">⚡ 30</div>
+            </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 2rem;">💪 Hunter Stats</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label" style="color: #fca5a5;">Physical Power</div>
+                <div class="stat-value" id="physicalStat">0</div>
+            </div>
+            <div class="stat-card mental">
+                <div class="stat-label" style="color: #67e8f9;">Mental Power</div>
+                <div class="stat-value mental" id="mentalStat">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="dailyQuestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Daily Quest - Core Routine</div>
+                <button class="close-btn" onclick="closeModal('dailyQuestModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-banner">
+                    🎯 Core Exercises - Do Daily
+                </div>
+                <div id="dailyQuestExercises"></div>
+                <button class="complete-btn" onclick="completeDailyQuest()">Complete Daily Quest (+80 XP)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="dailyWorkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Daily Workout - Strength Building</div>
+                <button class="close-btn" onclick="closeModal('dailyWorkoutModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-banner" id="workoutInfo">
+                    🎯 Today's Focus: chest
+                </div>
+                <div id="dailyWorkoutExercises"></div>
+                <button class="complete-btn" onclick="completeDailyWorkout()">Complete Workout (+100 XP)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ranks = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
+        
+        let gameState = {
+            level: 1,
+            rank: 'E',
+            currentXP: 0,
+            xpToNextLevel: 100,
+            totalXP: 0,
+            streak: 0,
+            lastDate: null,
+            stats: { physical: 0, mental: 0 },
+            readingPage: 0,
+            pushupModified: true,
+            pushupTotal: 0,
+            quests: {
+                daily: false,
+                workout: false,
+                reading: false,
+                stretch: false
+            }
+        };
+
+        const coreExercises = [
+            { name: 'Modified Push-ups', type: 'reps', min: 30, hint: '3x10' },
+            { name: 'Crunches', type: 'reps', min: 45, hint: '3x15' },
+            { name: 'Bicycle Crunches', type: 'reps', min: 60, hint: '3x20' },
+            { name: 'Leg Raises', type: 'reps', min: 30, hint: '3x10' },
+            { name: 'Treadmill', type: 'distance', min: 1.0, hint: '1 mile' }
+        ];
+
+        const rotations = {
+            0: { muscle: 'chest', exercises: ['Dumbbell Bench Press', 'Cable Chest Fly', 'Incline Dumbbell Press'] },
+            1: { muscle: 'back', exercises: ['Dumbbell Rows', 'Cable Lat Pulldown', 'Cable Seated Rows'] },
+            2: { muscle: 'shoulders', exercises: ['Dumbbell Shoulder Press', 'Cable Lateral Raises', 'Dumbbell Front Raises'] },
+            3: { muscle: 'arms', exercises: ['Dumbbell Curls', 'Cable Tricep Extensions', 'Hammer Curls'] },
+            4: { muscle: 'legs', exercises: ['Goblet Squats', 'Bulgarian Split Squats', 'Cable Leg Curls'] },
+            5: { muscle: 'core', exercises: ['Plank Hold', 'Russian Twists', 'Hanging Knee Raises'] },
+            6: { muscle: 'chest', exercises: ['Dumbbell Bench Press', 'Cable Chest Fly', 'Incline Dumbbell Press'] }
+        };
+
+        let workoutData = {};
+
+        function loadGame() {
+            const saved = localStorage.getItem('ariseGame');
+            if (saved) {
+                gameState = {...gameState, ...JSON.parse(saved)};
+                checkNewDay();
+            }
+            updateUI();
+        }
+
+        function saveGame() {
+            localStorage.setItem('ariseGame', JSON.stringify(gameState));
+        }
+
+        function checkNewDay() {
+            const today = new Date().toDateString();
+            if (gameState.lastDate !== today) {
+                gameState.quests = { daily: false, workout: false, reading: false, stretch: false };
+                gameState.lastDate = today;
+                saveGame();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('rankDisplay').textContent = gameState.rank;
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('rankTitle').textContent = gameState.rank;
+            document.getElementById('levelText').textContent = gameState.level;
+            document.getElementById('streakDisplay').textContent = gameState.streak;
+            document.getElementById('currentXP').textContent = gameState.currentXP;
+            document.getElementById('maxXP').textContent = gameState.xpToNextLevel;
+            document.getElementById('physicalStat').textContent = gameState.stats.physical;
+            document.getElementById('mentalStat').textContent = gameState.stats.mental;
+            
+            const xpPercent = (gameState.currentXP / gameState.xpToNextLevel) * 100;
+            document.getElementById('xpFill').style.width = xpPercent + '%';
+
+            updateQuestUI('daily', gameState.quests.daily);
+            updateQuestUI('workout', gameState.quests.workout);
+            updateQuestUI('reading', gameState.quests.reading);
+            updateQuestUI('stretch', gameState.quests.stretch);
+
+            document.getElementById('readingSub').textContent = `Page ${gameState.readingPage} → ${gameState.readingPage + 20}`;
+            
+            const day = new Date().getDay();
+            const todayRotation = rotations[day];
+            document.getElementById('workoutFocus').textContent = `Focus: ${todayRotation.muscle} - Rotates daily`;
+            document.getElementById('workoutInfo').textContent = `🎯 Today's Focus: ${todayRotation.muscle} - Rotates daily`;
+
+            if (!gameState.pushupModified) {
+                coreExercises[0].name = 'Push-ups';
+                coreExercises[0].min = 20;
+            }
+        }
+
+        function updateQuestUI(type, completed) {
+            const card = document.getElementById(`quest${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            const icon = document.getElementById(`icon${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            const title = document.getElementById(`title${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            
+            if (completed) {
+                card.classList.add('completed');
+                icon.classList.add('completed');
+                icon.textContent = '✓';
+                title.classList.add('completed');
+            } else {
+                card.classList.remove('completed');
+                icon.classList.remove('completed');
+                icon.textContent = '🎯';
+                title.classList.remove('completed');
+            }
+        }
+
+        function addXP(amount, stat) {
+            gameState.currentXP += amount;
+            gameState.totalXP += amount;
+            gameState.stats[stat] += amount;
+
+            let leveledUp = false;
+            while (gameState.currentXP >= gameState.xpToNextLevel) {
+                gameState.currentXP -= gameState.xpToNextLevel;
+                gameState.level++;
+                gameState.xpToNextLevel = Math.floor(100 * Math.pow(1.5, gameState.level - 1));
+                leveledUp = true;
+            }
+
+            gameState.rank = ranks[Math.min(Math.floor(gameState.level / 10), ranks.length - 1)];
+
+            if (Object.values(gameState.quests).every(q => q)) {
+                gameState.streak++;
+            }
+
+            saveGame();
+            updateUI();
+
+            if (leveledUp) {
+                showLevelUp();
+            }
+        }
+
+        function showLevelUp() {
+            document.getElementById('levelupLevel').textContent = `Lv. ${gameState.level}`;
+            document.getElementById('levelupRank').textContent = `Rank ${gameState.rank}`;
+            document.getElementById('levelupModal').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('levelupModal').classList.remove('active');
+            }, 2000);
+        }
+
+        function completeQuest(type) {
+            if (gameState.quests[type]) return;
+            
+            let xp = 0;
+            let stat = 'physical';
+            
+            if (type === 'reading') {
+                xp = 40;
+                stat = 'mental';
+                gameState.readingPage += 20;
+            } else if (type === 'stretch') {
+                xp = 30;
+            }
+            
+            gameState.quests[type] = true;
+            addXP(xp, stat);
+        }
+
+        function openDailyQuest() {
+            if (gameState.quests.daily) return;
+            
+            let html = '';
+            coreExercises.forEach((ex, i) => {
+                html += `<div class="exercise-card">
+                    <div class="exercise-header">
+                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-meta">⭐ Min: ${ex.type === 'distance' ? ex.min + ' mi' : ex.min + ' reps'} • ${ex.hint}</div>
+                    </div>`;
+                
+                if (ex.type === 'distance') {
+                    html += `<div class="input-grid">
+                        <div class="input-group">
+                            <label class="input-label">Distance (miles)</label>
+                            <input type="number" step="0.1" class="input-field" id="daily_${i}_dist" placeholder="${ex.min}">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Time (min)</label>
+                            <input type="number" class="input-field" id="daily_${i}_time" placeholder="20">
+                        </div>
+                    </div>
+                    <div class="result-text" id="daily_${i}_result"></div>`;
+                } else {
+                    html += `<div class="input-grid">
+                        <div class="input-group">
+                            <label class="input-label">Sets</label>
+                            <input type="number" class="input-field" id="daily_${i}_sets" placeholder="3">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Reps</label>
+                            <input type="number" class="input-field" id="daily_${i}_reps" placeholder="${Math.ceil(ex.min/3)}">
+                        </div>
+                    </div>
+                    <div class="result-text" id="daily_${i}_result"></div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            document.getElementById('dailyQuestExercises').innerHTML = html;
+            document.getElementById('dailyQuestModal').classList.add('active');
+            
+            // Add input listeners
+            coreExercises.forEach((ex, i) => {
+                if (ex.type === 'distance') {
+                    const distInput = document.getElementById(`daily_${i}_dist`);
+                    const timeInput = document.getElementById(`daily_${i}_time`);
+                    const updatePace = () => {
+                        const dist = parseFloat(distInput.value);
+                        const time = parseFloat(timeInput.value);
+                        if (dist && time) {
+                            const pace = (time / dist).toFixed(2);
+                            const meets = dist >= ex.min;
+                            document.getElementById(`daily_${i}_result`).innerHTML = `⚡ Pace: ${pace} min/mile ${meets ? '✓' : ''}`;
+                        }
+                    };
+                    distInput.addEventListener('input', updatePace);
+                    timeInput.addEventListener('input', updatePace);
+                } else {
+                    const setsInput = document.getElementById(`daily_${i}_sets`);
+                    const repsInput = document.getElementById(`daily_${i}_reps`);
+                    const updateTotal = () => {
+                        const sets = parseInt(setsInput.value) || 0;
+                        const reps = parseInt(repsInput.value) || 0;
+                        if (sets && reps) {
+                            const total = sets * reps;
+                            const meets = total >= ex.min;
+                            document.getElementById(`daily_${i}_result`).innerHTML = `🔥 Total: ${total} reps ${meets ? '✓' : ''}`;
+                        }
+                    };
+                    setsInput.addEventListener('input', updateTotal);
+                    repsInput.addEventListener('input', updateTotal);
+                }
+            });
+        }
+
+        function openDailyWorkout() {
+            if (gameState.quests.workout) return;
+            
+            const day = new Date().getDay();
+            const rotation = rotations[day];
+            const seed = new Date().toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+            const exercise = rotation.exercises[seed % rotation.exercises.length];
+            
+            let html = `<div class="exercise-card">
+                <div class="exercise-header">
+                    <div class="exercise-name">${exercise}</div>
+                    <div class="exercise-meta">🎯 ${rotation.muscle} - Rotation</div>
+                </div>
+                <div class="input-grid three">
+                    <div class="input-group">
+                        <label class="input-label">Sets</label>
+                        <input type="number" class="input-field" id="workout_sets" placeholder="3">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Reps</label>
+                        <input type="number" class="input-field" id="workout_reps" placeholder="12">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Weight</label>
+                        <input type="number" class="input-field" id="workout_weight" placeholder="25">
+                    </div>
+                </div>
+                <div class="result-text" id="workout_result"></div>
+            </div>`;
+            
+            document.getElementById('dailyWorkoutExercises').innerHTML = html;
+            document.getElementById('dailyWorkoutModal').classList.add('active');
+            
+            // Add input listeners
+            const setsInput = document.getElementById('workout_sets');
+            const repsInput = document.getElementById('workout_reps');
+            const weightInput = document.getElementById('workout_weight');
+            const updateVolume = () => {
+                const sets = parseInt(setsInput.value) || 0;
+                const reps = parseInt(repsInput.value) || 0;
+                const weight = parseInt(weightInput.value) || 0;
+                if (sets && reps && weight) {
+                    const volume = sets * reps * weight;
+                    document.getElementById('workout_result').innerHTML = `💪 Volume: ${volume} lbs`;
+                }
+            };
+            setsInput.addEventListener('input', updateVolume);
+            repsInput.addEventListener('input', updateVolume);
+            weightInput.addEventListener('input', updateVolume);
+        }
+
+        function completeDailyQuest() {
+            // Check pushup progression
+            const pushupSets = parseInt(document.getElementById('daily_0_sets').value) || 0;
+            const pushupReps = parseInt(document.getElementById('daily_0_reps').value) || 0;
+            
+            if (pushupSets && pushupReps) {
+                const total = pushupSets * pushupReps;
+                gameState.pushupTotal += total;
+                
+                if (gameState.pushupModified && gameState.pushupTotal >= 100) {
+                    if (confirm('🎉 You\'ve completed 100+ modified push-ups! Ready to progress to regular push-ups?')) {
+                        gameState.pushupModified = false;
+                        gameState.pushupTotal = 0;
+                    }
+                }
+            }
+            
+            gameState.quests.daily = true;
+            addXP(80, 'physical');
+            closeModal('dailyQuestModal');
+            workoutData = {};
+        }
+
+        function completeDailyWorkout() {
+            gameState.quests.workout = true;
+            addXP(100, 'physical');
+            closeModal('dailyWorkoutModal');
+            workoutData = {};
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', loadGame);
+    </script>
+</body>
+</html>
